@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['folder.py'],
+    ['list.py'],
     pathex=[],
     binaries=[],
     datas=[('resources', 'resources')],
