@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QListWidget, QLi
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 
-TITLE = "IDE"
+TITLE = "GAME"
 
 def resource_path(relative_path):
     if hasattr(sys, "_MEIPASS"):
@@ -14,7 +14,7 @@ class LibraryList(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(f"{TITLE}s")
-        self.resize(600, 400)
+        self.resize(600, 200)
         self.folder_path = rf"C:\{TITLE}"
 
         layout = QVBoxLayout(self)

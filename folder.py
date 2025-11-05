@@ -92,10 +92,10 @@ class LibraryApp(QWidget):
         print(files)
         row, col = 0, 0
         for file in files:
-            if not file.lower().endswith((".exe", ".lnk", ".ico")):
+            if not file.lower().endswith((".exe", ".url", ".lnk", ".ico")):
                 continue
             full_path = os.path.join(self.folder_path, file)
-            title = file.replace(".lnk", "")
+            title = file.replace(".lnk", "").replace(".url", "").replace(".exe", "").replace(".ico", "")
             image_path = resource_path(f"resources/{title}.ico")
             tile = ClickableTile(title=title, image_path=image_path, launch_path=full_path)
             self.grid.addWidget(tile, row, col)
