@@ -1,7 +1,7 @@
 import sys, os, subprocess
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem,
-    QLabel, QPushButton, QSplitter
+    QLabel, QPushButton, QSplitter, QMessageBox
 )
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtCore import Qt, QSize, QTimer
@@ -63,8 +63,13 @@ class LibraryList(QWidget):
         self.launch_btn.setEnabled(False)
         self.launch_btn.clicked.connect(self.launch_current)
 
+        self.test_btn = QPushButton("Test Alert")
+        self.test_btn.clicked.connect(self.alert)
+
+
         dlay.addWidget(self.icon_lbl)
         dlay.addWidget(self.path_lbl)
+        dlay.addWidget(self.test_btn)
         dlay.addWidget(self.launch_btn)
         dlay.addStretch(1)
 
@@ -150,7 +155,7 @@ class LibraryList(QWidget):
 
     # countdown logic
     def start_timer(self):
-        self.remaining_seconds = HOURS * 60 * 60
+        self.remaining_seconds = 10 #HOURS * 60 * 60
         self.update_timer_label()
         self.timer.start(1000)
 
@@ -161,6 +166,14 @@ class LibraryList(QWidget):
         else:
             self.timer.stop()
             self.timer_lbl.setText("Time’s up")
+            self.alert()
+
+    def alert(self):
+        box = QMessageBox(self)
+        box.setWindowTitle("Time's up!")
+        box.setText("The countdown has finished.")
+        box.setIcon(QMessageBox.Icon.Information)
+        box.exec()
 
     def update_timer_label(self):
         h, rem = divmod(self.remaining_seconds, 3600)
