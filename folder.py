@@ -1,4 +1,5 @@
 import sys, os, subprocess
+from PIL import Image
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QScrollArea,
     QGridLayout, QLabel, QFrame 
@@ -13,6 +14,26 @@ def resource_path(relative_path):
     if hasattr(sys, "_MEIPASS"):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
+
+def get_icon_from_file(file):
+    """Extract 256x256 icon from .url or .lnk file and store it."""
+    with open(file, encoding='utf-8', errors='ignore') as f:
+        for line in f:
+            if line.startswith("IconFile="):
+                icon_path = line.split("=", 1)[1].strip()
+                if not os.path.exists(icon_path):
+                    return
+                title = os.path.splitext(os.path.basename(file))[0]
+                dest_path = resource_path(f"resources/{title}.png")
+                try:
+                    if icon_path.lower().endswith('.ico'):
+                        image = Image.open(icon_path)
+                        largest = max(image.ico.sizes(), key=lambda s: s[0] * s[1])
+                        image = image.ico.getimage(largest)
+                        image.save(dest_path, format='PNG')
+                except Exception as e:
+                    print(f"Failed to extract 256x256 icon for {file}: {e}")
+                break
 
 
 class ClickableTile(QFrame):
@@ -30,8 +51,10 @@ class ClickableTile(QFrame):
         self.icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         if image_path and os.path.exists(image_path):
-            pix = QPixmap(image_path).scaled(256, 256, Qt.AspectRatioMode.KeepAspectRatio,
-                                             Qt.TransformationMode.SmoothTransformation)
+            pix = QPixmap(image_path)
+            if not pix.isNull():
+                pix.setDevicePixelRatio(app.devicePixelRatio())
+                pix = pix.scaled(256, 256)
             self.icon.setPixmap(pix)
         else:
             self.icon.setText("🗂️")  # fallback symbol
@@ -72,7 +95,7 @@ class LibraryApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(TITLE)
-        self.resize(1000, 600)
+        self.resize(1200, 600)
         self.folder_path = rf"C:\{TITLE}"
         
 
@@ -96,7 +119,9 @@ class LibraryApp(QWidget):
                 continue
             full_path = os.path.join(self.folder_path, file)
             title = file.replace(".lnk", "").replace(".url", "").replace(".exe", "").replace(".ico", "")
-            image_path = resource_path(f"resources/{title}.ico")
+            if file.endswith((".url", ".lnk")) and not os.path.exists(resource_path(f"resources/{title}.png")):
+                get_icon_from_file(f"{self.folder_path}/{file}")
+            image_path = resource_path(f"resources/{title}.png")
             tile = ClickableTile(title=title, image_path=image_path, launch_path=full_path)
             self.grid.addWidget(tile, row, col)
             col += 1

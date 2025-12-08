@@ -2,7 +2,7 @@
 setlocal
 
 :: --- Configuration ---
-set "SCRIPT=list.py"
+set "SCRIPT=beam.py"
 set "NAME=%~1"
 set "OUTDIR=C:\Tools\folders"
 
